@@ -42,20 +42,6 @@ def list_vehicles(
 
     return query.all()
 
-@router.get("/", response_model=List[schemas.VehicleOut])
-def list_vehicles(
-    type: Optional[str] = None,
-    status_filter: Optional[models.VehicleStatus] = None,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    query = db.query(models.Vehicle)
-    if type:
-        query = query.filter(models.Vehicle.type == type)
-    if status_filter:
-        query = query.filter(models.Vehicle.status == status_filter)
-    return query.all()
-
 
 @router.get("/available", response_model=List[schemas.VehicleOut])
 def list_available_vehicles(
