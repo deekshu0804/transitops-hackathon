@@ -171,3 +171,39 @@ class Trip(Base):
 
     vehicle = relationship("Vehicle")
     driver = relationship("Driver")
+
+class MaintenanceLog(Base):
+    __tablename__ = "maintenance_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
+    description = Column(String, nullable=False)
+    date = Column(DateTime, default=datetime.utcnow)
+    cost = Column(Float, nullable=False)
+    status = Column(String, default="active")  # active, closed
+
+    vehicle = relationship("Vehicle")
+
+
+class FuelLog(Base):
+    __tablename__ = "fuel_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
+    liters = Column(Float, nullable=False)
+    cost = Column(Float, nullable=False)
+    date = Column(DateTime, default=datetime.utcnow)
+
+    vehicle = relationship("Vehicle")
+
+
+class Expense(Base):
+    __tablename__ = "expenses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
+    type = Column(String, nullable=False)  # toll / other
+    amount = Column(Float, nullable=False)
+    date = Column(DateTime, default=datetime.utcnow)
+
+    vehicle = relationship("Vehicle")

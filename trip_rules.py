@@ -32,3 +32,12 @@ def cancel_trip(trip, vehicle, driver):
         vehicle.status = "available"
     if driver.status == "on_trip":
         driver.status = "available"
+
+def create_maintenance(vehicle):
+    if vehicle.status == "on_trip":
+        raise ValueError("Cannot start maintenance on a vehicle that's on_trip")
+    vehicle.status = "in_shop"
+
+def close_maintenance(vehicle):
+    if vehicle.status != "retired":
+        vehicle.status = "available"

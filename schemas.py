@@ -242,3 +242,46 @@ class TripOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MaintenanceCreate(BaseModel):
+    vehicle_id: int
+    description: str
+    cost: float
+
+class MaintenanceOut(BaseModel):
+    id: int
+    vehicle_id: int
+    description: str
+    date: datetime
+    cost: float
+    status: str
+    class Config:
+        from_attributes = True
+
+class FuelLogCreate(BaseModel):
+    vehicle_id: int
+    liters: float
+    cost: float
+
+class FuelLogOut(BaseModel):
+    id: int
+    vehicle_id: int
+    liters: float
+    cost: float
+    date: datetime
+    class Config:
+        from_attributes = True
+
+class ExpenseCreate(BaseModel):
+    vehicle_id: int
+    type: str
+    amount: float
+
+class ExpenseOut(BaseModel):
+    id: int
+    vehicle_id: int
+    type: str
+    amount: float
+    date: datetime
+    class Config:
+        from_attributes = True
