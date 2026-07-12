@@ -200,6 +200,33 @@
   .copilot{margin-top:16px}.copilot-row{display:flex;gap:8px}.copilot-row input{flex:1}.copilot-answer{margin-top:10px;color:var(--text-dim);font-size:13px;line-height:1.55;min-height:20px}
   @media(max-width:900px){.ai-grid{grid-template-columns:1fr 1fr}.ai-layout{grid-template-columns:1fr}} @media(max-width:560px){.ai-grid,.ai-form-grid{grid-template-columns:1fr}}
 
+
+/* FINAL VISUAL POLISH */
+.ai-hero{min-height:112px;display:flex;flex-direction:column;justify-content:center}
+.ai-live-orbit{position:absolute;right:52px;top:25px;width:82px;height:82px;border:1px solid rgba(74,158,255,.28);border-radius:50%;animation:orbitSpin 8s linear infinite}
+.ai-live-orbit:before{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--blue);top:-5px;left:35px;box-shadow:0 0 18px var(--blue)}
+.ai-live-orbit:after{content:"AI";position:absolute;inset:14px;border:1px dashed rgba(245,166,35,.35);border-radius:50%;display:grid;place-items:center;font:800 15px var(--mono);color:var(--amber);animation:orbitSpin 8s linear infinite reverse}
+@keyframes orbitSpin{to{transform:rotate(360deg)}}
+.ai-kpi{position:relative;overflow:hidden}
+.ai-kpi:after{content:"";position:absolute;left:0;bottom:0;height:2px;width:var(--level,70%);background:linear-gradient(90deg,var(--blue),var(--amber));animation:barGrow .8s ease-out}
+@keyframes barGrow{from{width:0}}
+.ai-signal{display:inline-flex;align-items:center;gap:7px;font:700 10px var(--mono);color:#7ee2a8;margin-top:8px}
+.ai-signal i{width:7px;height:7px;border-radius:50%;background:#7ee2a8;box-shadow:0 0 0 0 rgba(126,226,168,.5);animation:signalPulse 1.8s infinite}
+@keyframes signalPulse{70%{box-shadow:0 0 0 8px rgba(126,226,168,0)}100%{box-shadow:0 0 0 0 rgba(126,226,168,0)}}
+.route-viz{height:76px;margin:13px 0 2px;position:relative;border-radius:9px;background:linear-gradient(90deg,rgba(74,158,255,.05),rgba(245,166,35,.05));overflow:hidden}
+.route-line{position:absolute;left:8%;right:8%;top:37px;border-top:1px dashed #50617f}
+.route-dot{position:absolute;top:31px;width:13px;height:13px;border-radius:50%;background:var(--blue);box-shadow:0 0 14px rgba(74,158,255,.7)}
+.route-dot.start{left:8%}.route-dot.end{right:8%;background:var(--amber);box-shadow:0 0 14px rgba(245,166,35,.7)}
+.route-truck{position:absolute;top:23px;left:8%;font-size:21px;animation:driveRoute 4s ease-in-out infinite}
+@keyframes driveRoute{0%{left:8%}50%{left:82%}100%{left:8%}}
+.route-label{position:absolute;top:51px;font:700 9px var(--mono);color:var(--text-dim)}.route-label.a{left:6%}.route-label.b{right:6%}
+.health-bars{display:grid;gap:8px;margin-top:12px}.health-bar-row{display:grid;grid-template-columns:80px 1fr 38px;gap:8px;align-items:center;font:700 10px var(--mono)}
+.health-track{height:6px;background:var(--border);border-radius:10px;overflow:hidden}.health-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--amber));border-radius:10px;animation:barGrow 1s ease-out}
+.ai-result{box-shadow:0 0 0 1px rgba(74,158,255,.08),0 14px 35px rgba(0,0,0,.18)}
+.anomaly-empty-visual{height:230px;display:grid;place-items:center;text-align:center}.radar{width:110px;height:110px;border-radius:50%;border:1px solid var(--border);position:relative;background:repeating-radial-gradient(circle,transparent 0 20px,rgba(74,158,255,.08) 21px 22px)}
+.radar:before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(74,158,255,.3),transparent 28%);animation:orbitSpin 3s linear infinite}.radar:after{content:"✓";position:absolute;inset:31px;border-radius:50%;background:var(--panel);display:grid;place-items:center;color:#7ee2a8;font-size:25px}
+@media(max-width:900px){.ai-live-orbit{display:none}}
+
 </style>
 </head>
 <body>
@@ -404,15 +431,15 @@ async function pageAI(main){
   ]);
   main.innerHTML = `
     <div class="ai-hero">
-      <div class="ai-eyebrow">TransitOps Intelligence Layer · Live</div>
+      <div class="ai-eyebrow">TransitOps Intelligence Layer · Live</div><div class="ai-live-orbit"></div>
       <h2>AI Command Center</h2>
-      <div class="sub">Decision support for dispatch, fleet health and operational anomalies.</div>
+      <div class="sub">Decision support for dispatch, fleet health and operational anomalies.</div><div class="ai-signal"><i></i> OPERATIONAL INTELLIGENCE ONLINE</div>
     </div>
     <div class="ai-grid">
-      <div class="ai-kpi"><div class="meta">FLEET HEALTH</div><div class="num" data-ai-num="${center.fleet_health_avg}" data-suffix="/100">0</div><div class="meta">Average vehicle health</div></div>
-      <div class="ai-kpi"><div class="meta">ACTIVE TRIPS</div><div class="num" data-ai-num="${center.active_trips}">0</div><div class="meta">Currently dispatched</div></div>
-      <div class="ai-kpi"><div class="meta">CRITICAL RISKS</div><div class="num" data-ai-num="${center.critical_risk_vehicles}">0</div><div class="meta">Vehicles needing attention</div></div>
-      <div class="ai-kpi"><div class="meta">FUEL ANOMALIES</div><div class="num" data-ai-num="${center.fuel_anomalies_count}">0</div><div class="meta">Efficiency drops detected</div></div>
+      <div class="ai-kpi" style="--level:${Math.min(center.fleet_health_avg,100)}%"><div class="meta">FLEET HEALTH</div><div class="num" data-ai-num="${center.fleet_health_avg}" data-suffix="/100">0</div><div class="meta">Average vehicle health</div></div>
+      <div class="ai-kpi" style="--level:${Math.min(center.active_trips*18+20,100)}%"><div class="meta">ACTIVE TRIPS</div><div class="num" data-ai-num="${center.active_trips}">0</div><div class="meta">Currently dispatched</div></div>
+      <div class="ai-kpi" style="--level:${Math.min(center.critical_risk_vehicles*25+8,100)}%"><div class="meta">CRITICAL RISKS</div><div class="num" data-ai-num="${center.critical_risk_vehicles}">0</div><div class="meta">Vehicles needing attention</div></div>
+      <div class="ai-kpi" style="--level:${Math.min(center.fuel_anomalies_count*25+8,100)}%"><div class="meta">FUEL ANOMALIES</div><div class="num" data-ai-num="${center.fuel_anomalies_count}">0</div><div class="meta">Efficiency drops detected</div></div>
     </div>
     <div class="ai-layout">
       <div>
@@ -424,7 +451,7 @@ async function pageAI(main){
             <input id="aiCargo" type="number" min="1" placeholder="Cargo weight (kg)">
             <input id="aiDistance" type="number" min="1" placeholder="Distance (km)">
           </div>
-          <button class="btn" style="margin-top:12px" onclick="runAIRecommendation()">Analyze Fleet</button>
+          <div class="route-viz"><div class="route-line"></div><div class="route-dot start"></div><div class="route-dot end"></div><div class="route-truck">▰</div><span class="route-label a">ORIGIN</span><span class="route-label b">DESTINATION</span></div><button class="btn" style="margin-top:12px" onclick="runAIRecommendation()">Analyze Fleet</button>
           <div id="aiDispatchResult"></div>
         </div>
         <div class="ai-panel copilot">
@@ -436,7 +463,7 @@ async function pageAI(main){
       <div class="ai-panel">
         <h3>⚠ Anomaly Feed</h3>
         <div id="anomalyFeed">${anomalies.length ? anomalies.slice(0,8).map(a=>`
-          <div class="anomaly"><span class="severity ${a.severity}">${a.severity}</span><div><b>${a.type.replaceAll("_"," ")}</b><div class="meta" style="margin-top:4px">${a.message}</div></div></div>`).join("") : '<div class="empty-state">No anomalies detected. Fleet signals look stable.</div>'}</div>
+          <div class="anomaly"><span class="severity ${a.severity}">${a.severity}</span><div><b>${a.type.replaceAll("_"," ")}</b><div class="meta" style="margin-top:4px">${a.message}</div></div></div>`).join("") : '<div class="anomaly-empty-visual"><div><div class="radar"></div><div style="margin-top:16px;font-weight:700">All signals stable</div><div class="meta" style="margin-top:5px">No operational anomalies detected</div></div></div>'}</div>
       </div>
     </div>`;
   document.querySelectorAll("[data-ai-num]").forEach(el=>animateNumber(el, Number(el.dataset.aiNum), el.dataset.suffix||""));
