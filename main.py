@@ -21,6 +21,7 @@ from fuel_logs import router as fuel_logs_router
 from expenses import router as expenses_router
 from dashboard import router as dashboard_router
 from reports import router as reports_router
+from routers_ai import router as ai_router          # <-- added
 
 Base.metadata.create_all(bind=engine)
 
@@ -59,6 +60,7 @@ app.include_router(fuel_logs_router)
 app.include_router(expenses_router)
 app.include_router(dashboard_router)
 app.include_router(reports_router)
+app.include_router(ai_router)          # <-- added
 
 
 @app.get("/")
