@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
 import models  # noqa: F401 — needed so Base knows about all tables before create_all
 from routers_auth import router as auth_router
+from routers_vehicles import router as vehicles_router
+from routers_drivers import router as drivers_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -43,6 +45,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(vehicles_router, prefix="/vehicles", tags=["vehicles"])
+app.include_router(drivers_router, prefix="/drivers", tags=["drivers"])
 
 
 @app.get("/")
