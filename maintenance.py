@@ -16,7 +16,7 @@ def list_maintenance(db: Session = Depends(get_db), user=Depends(get_current_use
 def open_maintenance(
     body: schemas.MaintenanceCreate,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager"])),
+    user=Depends(require_role(models.UserRole.fleet_manager)),
 ):
     vehicle = db.query(models.Vehicle).get(body.vehicle_id)
     if not vehicle:
@@ -42,7 +42,7 @@ def open_maintenance(
 def close_maintenance_log(
     log_id: int,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager"])),
+    user=Depends(require_role(models.UserRole.fleet_manager)),
 ):
     log = db.query(models.MaintenanceLog).get(log_id)
     if not log:

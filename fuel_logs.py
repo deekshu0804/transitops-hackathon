@@ -15,7 +15,7 @@ def list_fuel_logs(db: Session = Depends(get_db), user=Depends(get_current_user)
 def create_fuel_log(
     body: schemas.FuelLogCreate,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager", "driver"])),
+    user=Depends(require_role(models.UserRole.fleet_manager, models.UserRole.driver_role)),
 ):
     vehicle = db.query(models.Vehicle).get(body.vehicle_id)
     if not vehicle:

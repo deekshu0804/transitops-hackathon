@@ -17,7 +17,7 @@ def list_trips(db: Session = Depends(get_db), user=Depends(get_current_user)):
 def create_trip(
     trip_in: schemas.TripCreate,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager"])),
+    user=Depends(require_role(models.UserRole.fleet_manager)),
 ):
     vehicle = db.query(models.Vehicle).get(trip_in.vehicle_id)
     driver = db.query(models.Driver).get(trip_in.driver_id)
@@ -34,7 +34,7 @@ def create_trip(
 def dispatch(
     trip_id: int,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager"])),
+    user=Depends(require_role(models.UserRole.fleet_manager)),
 ):
     trip = db.query(models.Trip).get(trip_id)
     if not trip:
@@ -59,7 +59,7 @@ def complete(
     trip_id: int,
     body: schemas.TripCompleteRequest,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager", "driver"])),
+    user=Depends(require_role(models.UserRole.fleet_manager, models.UserRole.driver_role)),
 ):
     trip = db.query(models.Trip).get(trip_id)
     if not trip:
@@ -82,7 +82,7 @@ def complete(
 def cancel(
     trip_id: int,
     db: Session = Depends(get_db),
-    user=Depends(require_role(["fleet_manager"])),
+    user=Depends(require_role(models.UserRole.fleet_manager, models.UserRole.driver_role)),
 ):
     trip = db.query(models.Trip).get(trip_id)
     if not trip:
