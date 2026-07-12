@@ -176,6 +176,30 @@
     .sidebar .nav-item span.label, .brand span.full{display:none;}
     .main{padding:18px;}
   }
+
+  /* ---------- AI Command Center ---------- */
+  .ai-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--panel),#17233d);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+  .ai-hero:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-70px;top:-100px;background:radial-gradient(circle,rgba(74,158,255,.22),transparent 68%);animation:aiPulse 3s ease-in-out infinite}
+  @keyframes aiPulse{50%{transform:scale(1.16);opacity:.55}}
+  .ai-eyebrow{font:700 11px var(--mono);letter-spacing:1.4px;color:var(--blue);text-transform:uppercase}
+  .ai-hero h2{font-size:25px;margin:8px 0 6px}
+  .ai-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+  .ai-kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:17px;transition:.2s transform,.2s border-color}
+  .ai-kpi:hover{transform:translateY(-3px);border-color:var(--blue)}
+  .ai-kpi .num{font:800 27px var(--mono);margin:7px 0 2px}.ai-kpi .meta{font-size:11px;color:var(--text-dim)}
+  .ai-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  .ai-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+  .ai-panel h3{margin:0 0 15px;font-size:14px}.ai-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ai-result{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:9px;background:var(--panel-2)}
+  .score-ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--blue) calc(var(--score)*1%),var(--border) 0);position:relative;flex-shrink:0}
+  .score-ring:after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel-2)}
+  .score-ring span{position:relative;z-index:1;font:800 17px var(--mono)}
+  .recommend-row{display:flex;align-items:center;gap:14px}
+  .anomaly{padding:11px 0;border-bottom:1px solid var(--border);display:flex;gap:10px}.anomaly:last-child{border:0}
+  .severity{font:700 10px var(--mono);padding:4px 6px;border-radius:4px;height:max-content}.severity.HIGH,.severity.CRITICAL{background:rgba(229,72,77,.16);color:var(--red)}.severity.MEDIUM,.severity.WARNING{background:rgba(245,166,35,.16);color:var(--amber)}
+  .copilot{margin-top:16px}.copilot-row{display:flex;gap:8px}.copilot-row input{flex:1}.copilot-answer{margin-top:10px;color:var(--text-dim);font-size:13px;line-height:1.55;min-height:20px}
+  @media(max-width:900px){.ai-grid{grid-template-columns:1fr 1fr}.ai-layout{grid-template-columns:1fr}} @media(max-width:560px){.ai-grid,.ai-form-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -221,6 +245,7 @@
       <div class="nav-item" data-page="trips"><span class="nav-dot"></span><span class="label">Trips</span></div>
       <div class="nav-item" data-page="maintenance"><span class="nav-dot"></span><span class="label">Maintenance</span></div>
       <div class="nav-item" data-page="fuel"><span class="nav-dot"></span><span class="label">Fuel &amp; Expenses</span></div>
+      <div class="nav-item" data-page="ai"><span class="nav-dot"></span><span class="label">AI Command Center</span></div>
       <div class="nav-item" data-page="reports"><span class="nav-dot"></span><span class="label">Reports</span></div>
       <div class="sidebar-footer">
         Signed in as<br>
@@ -353,10 +378,97 @@ async function renderPage(page){
     else if (page === "trips") await pageTrips(main);
     else if (page === "maintenance") await pageMaintenance(main);
     else if (page === "fuel") await pageFuel(main);
+    else if (page === "ai") await pageAI(main);
     else if (page === "reports") await pageReports(main);
   }catch(e){
     main.innerHTML = `<div class="empty-state">Couldn't load this page — ${e.message}</div>`;
   }
+}
+
+
+function animateNumber(el, target, suffix=""){
+  const start = performance.now(), duration = 650;
+  function tick(now){
+    const p = Math.min((now-start)/duration,1);
+    const value = target * (1-Math.pow(1-p,3));
+    el.textContent = (Number.isInteger(target) ? Math.round(value) : value.toFixed(1)) + suffix;
+    if(p<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+async function pageAI(main){
+  const [center, anomalies] = await Promise.all([
+    api("/ai/command-center"),
+    api("/ai/anomalies").catch(()=>[])
+  ]);
+  main.innerHTML = `
+    <div class="ai-hero">
+      <div class="ai-eyebrow">TransitOps Intelligence Layer · Live</div>
+      <h2>AI Command Center</h2>
+      <div class="sub">Decision support for dispatch, fleet health and operational anomalies.</div>
+    </div>
+    <div class="ai-grid">
+      <div class="ai-kpi"><div class="meta">FLEET HEALTH</div><div class="num" data-ai-num="${center.fleet_health_avg}" data-suffix="/100">0</div><div class="meta">Average vehicle health</div></div>
+      <div class="ai-kpi"><div class="meta">ACTIVE TRIPS</div><div class="num" data-ai-num="${center.active_trips}">0</div><div class="meta">Currently dispatched</div></div>
+      <div class="ai-kpi"><div class="meta">CRITICAL RISKS</div><div class="num" data-ai-num="${center.critical_risk_vehicles}">0</div><div class="meta">Vehicles needing attention</div></div>
+      <div class="ai-kpi"><div class="meta">FUEL ANOMALIES</div><div class="num" data-ai-num="${center.fuel_anomalies_count}">0</div><div class="meta">Efficiency drops detected</div></div>
+    </div>
+    <div class="ai-layout">
+      <div>
+        <div class="ai-panel">
+          <h3>⚡ Smart Dispatch Recommendation</h3>
+          <div class="ai-form-grid">
+            <input id="aiSource" placeholder="Source" value="Bangalore">
+            <input id="aiDestination" placeholder="Destination" value="Chennai">
+            <input id="aiCargo" type="number" min="1" placeholder="Cargo weight (kg)">
+            <input id="aiDistance" type="number" min="1" placeholder="Distance (km)">
+          </div>
+          <button class="btn" style="margin-top:12px" onclick="runAIRecommendation()">Analyze Fleet</button>
+          <div id="aiDispatchResult"></div>
+        </div>
+        <div class="ai-panel copilot">
+          <h3>✦ Operations Copilot</h3>
+          <div class="copilot-row"><input id="copilotQuestion" placeholder="Ask about dispatch, health, maintenance or fuel risk…"><button class="btn" onclick="askCopilot()">Ask</button></div>
+          <div class="copilot-answer" id="copilotAnswer">Ask a fleet operations question.</div>
+        </div>
+      </div>
+      <div class="ai-panel">
+        <h3>⚠ Anomaly Feed</h3>
+        <div id="anomalyFeed">${anomalies.length ? anomalies.slice(0,8).map(a=>`
+          <div class="anomaly"><span class="severity ${a.severity}">${a.severity}</span><div><b>${a.type.replaceAll("_"," ")}</b><div class="meta" style="margin-top:4px">${a.message}</div></div></div>`).join("") : '<div class="empty-state">No anomalies detected. Fleet signals look stable.</div>'}</div>
+      </div>
+    </div>`;
+  document.querySelectorAll("[data-ai-num]").forEach(el=>animateNumber(el, Number(el.dataset.aiNum), el.dataset.suffix||""));
+}
+
+async function runAIRecommendation(){
+  const result = document.getElementById("aiDispatchResult");
+  const cargo_weight = Number(document.getElementById("aiCargo").value);
+  const distance_km = Number(document.getElementById("aiDistance").value);
+  const source = document.getElementById("aiSource").value.trim();
+  const destination = document.getElementById("aiDestination").value.trim();
+  if(!cargo_weight || !distance_km || !source || !destination){ toast("Fill all dispatch inputs", true); return; }
+  result.innerHTML = '<div class="ai-result">Analyzing eligible fleet pairs…</div>';
+  try{
+    const d = await api("/ai/dispatch/recommend",{method:"POST",body:JSON.stringify({cargo_weight,distance_km,source,destination})});
+    result.innerHTML = `<div class="ai-result"><div class="recommend-row">
+      <div class="score-ring" style="--score:${d.dispatch_score}"><span>${Math.round(d.dispatch_score)}</span></div>
+      <div><div class="ai-eyebrow">Top recommendation</div><h3 style="margin:5px 0">${d.recommended_vehicle} · ${d.recommended_driver}</h3><div class="meta">Health ${d.vehicle_health}/100 · Estimated cost ₹${Number(d.estimated_cost).toLocaleString("en-IN")}</div></div>
+    </div><div style="margin-top:12px;font-size:13px;line-height:1.5;color:var(--text-dim)">${d.reason}</div></div>`;
+  }catch(e){ result.innerHTML=""; toast(e.message,true); }
+}
+
+async function askCopilot(){
+  const input=document.getElementById("copilotQuestion"), answer=document.getElementById("copilotAnswer");
+  const question=input.value.trim(); if(!question) return;
+  answer.textContent="Analyzing operations…";
+  const cargo=Number(document.getElementById("aiCargo")?.value)||null;
+  const distance=Number(document.getElementById("aiDistance")?.value)||null;
+  try{
+    const d=await api("/ai/copilot",{method:"POST",body:JSON.stringify({question,cargo_weight:cargo,distance_km:distance})});
+    answer.textContent=d.answer;
+  }catch(e){answer.textContent=e.message;}
 }
 
 async function pageDashboard(main){
