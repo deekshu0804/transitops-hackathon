@@ -5,7 +5,7 @@ import csv
 import io
 
 from database import get_db
-from deps import get_current_user
+from auth import get_current_user
 import models
 
 router = APIRouter(prefix="/reports", tags=["reports"])

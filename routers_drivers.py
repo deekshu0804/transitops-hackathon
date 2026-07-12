@@ -19,7 +19,7 @@ import schemas
 from database import get_db
 from auth import get_current_user, require_role
 
-router = APIRouter()
+router = APIRouter(prefix="/drivers", tags=["drivers"])
 
 
 @router.get("/", response_model=List[schemas.DriverOut])

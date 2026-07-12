@@ -18,8 +18,29 @@ import schemas
 from database import get_db
 from auth import get_current_user, require_role
 
-router = APIRouter()
+router = APIRouter(prefix="/vehicles", tags=["vehicles"])
 
+
+@router.get("/", response_model=List[schemas.VehicleOut])
+def list_vehicles(
+    type: Optional[str] = None,
+    status_filter: Optional[models.VehicleStatus] = None,
+    sort_by: Optional[str] = None,   # "odometer", "acquisition_cost", "name"
+    order: str = "asc",
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    query = db.query(models.Vehicle)
+    if type:
+        query = query.filter(models.Vehicle.type == type)
+    if status_filter:
+        query = query.filter(models.Vehicle.status == status_filter)
+
+    if sort_by and hasattr(models.Vehicle, sort_by):
+        column = getattr(models.Vehicle, sort_by)
+        query = query.order_by(column.desc() if order == "desc" else column.asc())
+
+    return query.all()
 
 @router.get("/", response_model=List[schemas.VehicleOut])
 def list_vehicles(

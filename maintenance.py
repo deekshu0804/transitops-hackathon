@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-from deps import require_role, get_current_user
+from auth import require_role, get_current_user
 import models, schemas
-from services.trip_rules import create_maintenance, close_maintenance
+from trip_rules import create_maintenance, close_maintenance
 
 router = APIRouter(prefix="/maintenance", tags=["maintenance"])
 

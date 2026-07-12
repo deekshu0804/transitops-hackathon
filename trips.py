@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from database import get_db
-from deps import get_current_user, require_role
+from auth import get_current_user, require_role
 import models, schemas
 from trip_rules import can_dispatch_trip, dispatch_trip, complete_trip, cancel_trip
 
