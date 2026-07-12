@@ -5,7 +5,7 @@ from datetime import datetime
 from database import get_db
 from deps import get_current_user, require_role
 import models, schemas
-from services.trip_rules import can_dispatch_trip, dispatch_trip, complete_trip, cancel_trip
+from trip_rules import can_dispatch_trip, dispatch_trip, complete_trip, cancel_trip
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 
