@@ -20,6 +20,7 @@ from maintenance import router as maintenance_router
 from fuel_logs import router as fuel_logs_router
 from expenses import router as expenses_router
 from dashboard import router as dashboard_router
+from reports import router as reports_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -57,6 +58,7 @@ app.include_router(maintenance_router)
 app.include_router(fuel_logs_router)
 app.include_router(expenses_router)
 app.include_router(dashboard_router)
+app.include_router(reports_router)
 
 
 @app.get("/")
