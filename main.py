@@ -11,13 +11,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
 import models  # noqa: F401 — needed so Base knows about all tables before create_all
+
 from routers_auth import router as auth_router
 from routers_vehicles import router as vehicles_router
 from routers_drivers import router as drivers_router
-from routers import trips
-from routers import maintenance, fuel_logs, expenses
+from trips import router as trips_router
+from maintenance import router as maintenance_router
+from fuel_logs import router as fuel_logs_router
+from expenses import router as expenses_router
+from dashboard import router as dashboard_router
 
-app.include_router(trips.router)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="TransitOps API")
@@ -34,8 +37,7 @@ app.add_middleware(
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
     Turns Pydantic's default (verbose, developer-facing) validation errors into
-    a clean, user-facing list of "field: what's wrong" messages. Directly
-    addresses the evaluator's callout on graceful error handling.
+    a clean, user-facing list of "field: what's wrong" messages.
     """
     errors = []
     for err in exc.errors():
@@ -47,12 +49,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
-app.include_router(vehicles_router, prefix="/vehicles", tags=["vehicles"])
-app.include_router(drivers_router, prefix="/drivers", tags=["drivers"])
-app.include_router(maintenance.router)
-app.include_router(fuel_logs.router)
-app.include_router(expenses.router)
+app.include_router(auth_router)
+app.include_router(vehicles_router)
+app.include_router(drivers_router)
+app.include_router(trips_router)
+app.include_router(maintenance_router)
+app.include_router(fuel_logs_router)
+app.include_router(expenses_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/")
