@@ -215,3 +215,30 @@ class ExpenseOut(BaseModel):
 
     class Config:
         from_attributes = True
+class TripCreate(BaseModel):
+    source: str
+    destination: str
+    vehicle_id: int
+    driver_id: int
+    cargo_weight: float
+    planned_distance: float
+
+class TripCompleteRequest(BaseModel):
+    final_odometer: float
+    fuel_consumed: float
+
+class TripOut(BaseModel):
+    id: int
+    source: str
+    destination: str
+    vehicle_id: int
+    driver_id: int
+    cargo_weight: float
+    planned_distance: float
+    actual_distance: float | None
+    fuel_consumed: float | None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

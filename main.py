@@ -14,6 +14,9 @@ import models  # noqa: F401 — needed so Base knows about all tables before cre
 from routers_auth import router as auth_router
 from routers_vehicles import router as vehicles_router
 from routers_drivers import router as drivers_router
+from routers import trips
+
+app.include_router(trips.router)
 
 Base.metadata.create_all(bind=engine)
 

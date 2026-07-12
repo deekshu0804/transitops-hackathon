@@ -153,3 +153,21 @@ class Expense(Base):
     date = Column(Date, default=datetime.utcnow)
 
     vehicle = relationship("Vehicle", back_populates="expenses")
+
+class Trip(Base):
+    __tablename__ = "trips"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source = Column(String, nullable=False)
+    destination = Column(String, nullable=False)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)
+    driver_id = Column(Integer, ForeignKey("drivers.id"), nullable=False)
+    cargo_weight = Column(Float, nullable=False)
+    planned_distance = Column(Float, nullable=False)
+    actual_distance = Column(Float, nullable=True)
+    fuel_consumed = Column(Float, nullable=True)
+    status = Column(String, default="draft")  # draft, dispatched, completed, cancelled
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    vehicle = relationship("Vehicle")
+    driver = relationship("Driver")
